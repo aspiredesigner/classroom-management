@@ -59,7 +59,8 @@ CREATE TABLE IF NOT EXISTS "Submission" (
   "content" TEXT,
   "submittedAt" TIMESTAMPTZ DEFAULT now(),
   "grade" DOUBLE PRECISION,
-  "feedback" TEXT
+  "feedback" TEXT,
+  UNIQUE("assignmentId", "studentId")
 );
 
 -- Grade (成績)
