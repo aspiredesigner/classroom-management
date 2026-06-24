@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'classId, studentId, date required' }, { status: 400 })
   }
   const record = await prisma.attendance.upsert({
-    where: { studentId_classId_date: { studentId, classId, date: new Date(date) } },
+    where: { studentIdClassIdDate: { studentId, classId, date: new Date(date) } },
     create: { classId, studentId, date: new Date(date), status: status || 'present' },
     update: { status },
   })

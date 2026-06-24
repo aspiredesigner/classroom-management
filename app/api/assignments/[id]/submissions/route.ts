@@ -10,7 +10,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { studentId, content } = await req.json()
   if (!studentId) return NextResponse.json({ error: 'studentId required' }, { status: 400 })
   const submission = await prisma.submission.upsert({
-    where: { assignmentId_studentId: { assignmentId: params.id, studentId } },
+    where: { assignmentIdStudentId: { assignmentId: params.id, studentId } },
     create: { assignmentId: params.id, studentId, content },
     update: { content, submittedAt: new Date() },
   })
