@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("teacher")
+  createdAt    DateTime @default(now())
+  classes      Class[]  @relation("TeacherClasses")
+  announcements Announcement[]
+}
+
+model Class {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  teacherId    String
+  teacher      User     @relation("TeacherClasses", fields: [teacherId], references: [id])
+  createdAt    DateTime @default(now())
+  students     Student[]
+  assignments  Assignment[]
+  announcements Announcement[]
+  attendanceRecords Attendance[]
+  grades       Grade[]
+}
+
+model Student {
+  id           String   @id @default(uuid())
+  studentId    String   @unique
+  name         String
+  email         String?
+  classId      String
+  class        Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  submissions  Submission[]
+  attendanceRecords Attendance[]
+  grades       Grade[]
+}
+
+model Attendance {
+  id        String   @id @default(uuid())
+  studentId String
+  classId   String
+  date      DateTime @db.Date
+  status    String   @default("present")
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, classId, date])
+}
+
+model Assignment {
+  id          String   @id @default(uuid())
+  classId     String
+  title       String
+  description String?
+  dueDate     DateTime
+  createdAt   DateTime @default(now())
+  class       Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id           String     @id @default(uuid())
+  assignmentId String
+  studentId    String
+  content      String?
+  submittedAt  DateTime   @default(now())
+  grade        Float?
+  feedback     String?
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model Grade {
+  id         String   @id @default(uuid())
+  studentId  String
+  classId    String
+  examName   String
+  score      Float
+  recordedAt DateTime @default(now())
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  class      Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id        String   @id @default(uuid())
+  classId   String
+  teacherId String
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher   User     @relation(fields: [teacherId], references: [id])
+}
